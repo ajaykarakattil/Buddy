@@ -11,6 +11,8 @@ import android.provider.Settings;
 import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
+import android.speech.tts.TextToSpeech;
+import android.speech.tts.Voice;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -20,6 +22,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.TextView;
+
 
 import java.util.ArrayList;
 import java.util.Locale;
@@ -31,7 +34,10 @@ ImageButton img;
 SpeechRecognizer mySpeechRecongnizer;
 Intent mySpeechRecongnizerIntent;
 ConstraintLayout constraintLayout;
+public myVoiceLibs ob;
 
+    private TextToSpeech ts;
+    private String myVoice;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +50,19 @@ ConstraintLayout constraintLayout;
         mySpeechRecongnizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE,Locale.getDefault());
         txt=(TextView)findViewById(R.id.txtSpeech);
         txt.setText("Hello Buddy");
+        ob=new myVoiceLibs();
+                ts=new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status!=TextToSpeech.ERROR){
+                    ts.setLanguage(Locale.US);
+
+                }
+            }
+        });
+        ts.setPitch((float) 1.0);
+        ts.setSpeechRate((float) 0.9);
+        //ts.setVoice(voiceobj);
         constraintLayout=(ConstraintLayout)findViewById(R.id.background);
         constraintLayout.setOnTouchListener(new View.OnTouchListener() {
             @Override
@@ -108,6 +127,50 @@ ConstraintLayout constraintLayout;
                 ArrayList<String> matches=results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
                 if(matches!=null){
                     txt.setText(matches.get(0));
+                    String myReco=matches.get(0).toString();
+                    myVoice="";
+                    Random random=new Random();
+                    if(myReco.contains("hello")){
+                        myVoice=ob.hello[random.nextInt(3)];
+                        txt.setText(myVoice);
+                    }
+                    else if(myReco.contains("how are you")){
+                        myVoice=ob.Hru[random.nextInt(4)];
+                        txt.setText(myVoice);
+                    }
+                    else if(myReco.contains("who are you")){
+                        myVoice=ob.Wru[random.nextInt(4)];
+                        txt.setText(myVoice);
+                    }
+                    else if(myReco.contains("who created you")){
+                        myVoice=ob.creator[random.nextInt(2)];
+                        txt.setText(myVoice);
+                    }
+                    else if(myReco.contains("thanks")|| myReco.contains("thank you")){
+                        myVoice=ob.thanks[random.nextInt(3)];
+                        txt.setText(myVoice);
+                    }
+                    else if(myReco.contains("bye")){
+                        myVoice=ob.Bye[random.nextInt(3)];
+                        txt.setText(myVoice);
+                    }
+                    else if(myReco.contains("are you fool")){
+                        myVoice=ob.fool[random.nextInt(3)];
+                        txt.setText(myVoice);
+                    }
+                    else if(myReco.contains("sing a song")){
+                        myVoice=ob.sing[random.nextInt(1)];
+                        txt.setText(myVoice);
+                    }
+                    else if(myReco.contains("naughty boy")){
+                        myVoice=ob.naugh[random.nextInt(2)];
+                        txt.setText(myVoice);
+                    }
+                    else{
+                        myVoice="I don't know what you said, i will learn and update myself later";
+                        txt.setText(myVoice);
+                    }
+                    ts.speak(myVoice,TextToSpeech.QUEUE_FLUSH,null);
                 }
                 else
                     txt.setText("Sorry Buddy! I can't understand");
@@ -131,6 +194,7 @@ ConstraintLayout constraintLayout;
 
                 switch (event.getAction()){
                     case MotionEvent.ACTION_UP:
+                        txt.setText("");
                         img.setImageResource(R.drawable.out_ico);
                         mySpeechRecongnizer.stopListening();
 
@@ -156,4 +220,14 @@ ConstraintLayout constraintLayout;
             }
         }
     }
+    public void onPause(){
+        if(ts !=null){
+            ts.stop();
+            ts.shutdown();
+        }
+        super.onPause();
+    }
+
 }
+
+
